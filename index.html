@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
+    <link href="./bootstrap_css/bootstrap.min.css" rel="stylesheet">
+    <link href="./style/signin.css" rel="stylesheet">
+  </head>
+
+  <body class="text-center">
+
+    <main class="form-signin">
+      <form>
+        <img class="mb-4" src="images/ravenImg.png" alt="" width="72" height="57">
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+       
+        <div class="form-floating">
+          <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+          <label for="floatingInput">Email address</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+          <label for="floatingPassword">Password</label>
+        </div>
+      </form>
+
+      <div class="btns-handling">
+        <button id="btn-signup" class="w-100 btn btn-lg btn-primary margin" type="submit">Sign Up</button>
+        <button id="btn-login-email" class="w-100 btn btn-lg btn-primary margin">Login</button>
+      </div>
+    
+      <p>OR</p>
+      <div class="btns-handling">
+        <button id="btn-login-meta" class="w-100 btn btn-lg btn-secondary margin">Metamask Login</button>
+      </div>
+  
+        <p class="mt-5 mb-3 text-muted">&copy; 2017–2021</p>
+     
+    </main>
+
+    <script type="text/javascript" src="./project_js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+/* Moralis init code */
+const serverUrl = "https://jhprahjz3khp.usemoralis.com:2053/server";
+const appId = "y92Atk7mC7uTz8z933UujQTfsjXpPmNemXoZQQ10";
+Moralis.start({ serverUrl, appId });
+
+window.onload = () => {
+  document.getElementById("wallet-address").innerHTML = `${Moralis.User.current().get("ethAddress").substr(0, 6)}...${Moralis.User.current().get("ethAddress").substr(-4, 4)}`;
+  console.log(`${Moralis.User.current().get("ethAddress").substr(0, 6)}...${Moralis.User.current().get("ethAddress").substr(-4, 4)}`);
+}
+
+async function logOut() {
+  await Moralis.User.logOut();
+  console.log("logged out");
+  window.location.href = "../index.html";
+}
+document.getElementById("btn-logout").onclick = logOut;
