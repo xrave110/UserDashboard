@@ -57,7 +57,11 @@ else if(user != null && !window.location.href.includes("/index.html")){
 
 async function fetchCoinList (){
     let retCoins = await (await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false")).json();
+    let retCoins1 = await (await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false")).json();
+    let retCoins2 = await (await fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=2&sparkline=false")).json();
     //getDashboard(blockchains.ETH);
+    retCoins = retCoins1.concat(retCoins2);
+    console.log(retCoins);
 
     return retCoins;
 }
@@ -130,34 +134,37 @@ async function getDashboard(blockchain) {
     coinsSymbolsToPrice = JSON.parse(`{${coinsSymbolsToPrice}}`);
     let coinsToActualValue;
     let tokenPrices;
-    //console.log(Object.keys(coinsSymbolsToPrice));
-    //console.log(tokenBalances.map(token => token.symbol));
+    console.log(Object.keys(coinsSymbolsToPrice));
+    console.log(tokenBalances.map(token => token.symbol));
     coinsToActualValue = tokenBalances
                     .filter((token) => Object.keys(coinsSymbolsToPrice)
                     .includes(token.symbol.toLowerCase()))
-                    .map(itoken => `"${itoken.symbol.toLowerCase()}": ${(itoken.balance / 1e18).toFixed(5)*coinsSymbolsToPrice[`${itoken.symbol.toLowerCase()}`]}`);
+                    .map((itoken) => ({
+                        ["name"] : itoken.symbol.toLowerCase(), 
+                        ["value"] : (itoken.balance / 1e18).toFixed(5)*coinsSymbolsToPrice[itoken.symbol.toLowerCase()]
+                    }));
 
     if(Object.keys(coinsSymbolsToPrice).includes(blockchain.ticker.toLowerCase())){
-        coinsToActualValue.push(`"${blockchain.ticker.toLowerCase()}": ${(nativeBalance.balance / 1e18).toFixed(5)*coinsSymbolsToPrice[`${blockchain.ticker.toLowerCase()}`]}`);
+        coinsToActualValue.push({
+            ["name"] : blockchain.ticker.toLowerCase(), 
+            ["value"] : (nativeBalance.balance / 1e18).toFixed(5)*coinsSymbolsToPrice[blockchain.ticker.toLowerCase()]
+        });
     }
-    coinsToActualValue = JSON.parse(`{${coinsToActualValue}}`);
     let totalAmount = 0;
-    Object.keys(coinsToActualValue).forEach((symbol) => {
-        totalAmount += +coinsToActualValue[symbol];
+    totalAmount = coinsToActualValue.reduce((stored, current) => stored + current.value, 0);
+    coinsToActualValue.sort(function (a,b){
+        return b.value - a.value;
     });
-    numbers = Object.values(coinsToActualValue).sort((a,b) => b - a);
-    console.log(numbers);
-
     document.getElementById("content-table").innerHTML = `<h3>Total amount: ${totalAmount.toFixed(2)} $<h3>`
     const listOfStyles = ["", "bg-success", "bg-info", "bg-warning", "bg-danger"];
     let idx = 0;
-    Object.keys(coinsToActualValue).forEach(((symbol) => {
+    coinsToActualValue.forEach(((coin) => {
         document.getElementById("content-table").innerHTML += `
         <div d-flex>
             <div class="progress">
-                <div class="progress-bar progress-bar-striped ${listOfStyles[idx]}" role="progressbar" style="width: ${(coinsToActualValue[symbol]/totalAmount)*100}%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">${symbol.toUpperCase()} ${((coinsToActualValue[symbol]/totalAmount)*100).toFixed(2)}%</div>
+                <div class="progress-bar progress-bar-striped ${listOfStyles[idx]}" role="progressbar" style="width: ${(coin.value/totalAmount)*100}%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">${coin.name.toUpperCase()} ${((coin.value/totalAmount)*100).toFixed(2)}%</div>
             </div>
-            <div>${coinsToActualValue[symbol].toFixed(5)} $</div>
+            <div>${coin.value.toFixed(5)} $</div>
         </div>`;
         idx++;
     }))
@@ -226,6 +233,7 @@ async function getBalances(blockchain){
         <tr>
             <th scope="col">Ticker</th>
             <th scope="col">Balance</th>
+            <th scope="col">Contract</th>
         </tr>
     </thead>
     <tbody id="theBalance">
@@ -236,6 +244,9 @@ async function getBalances(blockchain){
             <td>
                 <strong>Native Balance: ${(nativeBalance.balance / 1e18).toFixed(5)} ${blockchain.ticker}</strong>
             </td>
+            <td>
+            <strong> NA </strong>
+            </td>
         </tr>
     </tbody>
     </table>
@@ -245,6 +256,7 @@ async function getBalances(blockchain){
         `<tr>
             <th> ${f.symbol} </th>
             <th> ${(f.balance / 10**f.decimals).toFixed(5)} </th>
+            <th> <a href='${blockchain.blockExplorer}/token/${f.token_address}' target='_blank' rel='noopener noreferrer'>${f.token_address}</a></th>
         </tr>`
         theBalance.innerHTML += content;
     })
